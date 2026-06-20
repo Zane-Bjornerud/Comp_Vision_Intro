@@ -30,19 +30,34 @@ def softmax_loss_naive(W, X, y, reg):
     num_classes = W.shape[1]
     num_train = X.shape[0]
     for i in range(num_train):
-        scores = X[i].dot(W)
+        scores = X[i].dot(W) #one training image ie. a vector of pixels. W is the weight matrix. dot product gives score for each class 
 
         # compute the probabilities in numerically stable way
-        scores -= np.max(scores)
-        p = np.exp(scores)
-        p /= p.sum()  # normalize
-        logp = np.log(p)
+        scores -= np.max(scores) #subtracts the largest score so numbers dont explode in exp. Doesn't change final probabilities 
+        
+        #softmax - turning scores into probabilities 
+        exp_scores = np.exp(scores)
+        probs = exp_scores/np.sum(exp_scores)
 
-        loss -= logp[y[i]]  # negative log probability is the loss
+        #loss contribution from example i
+        loss += -np.log(probs[y[i]]) #y[i] is the correct class for this image, so probability the model assigned to correct class
+        #model is penalized more when it assigns low probability to correct class
 
+        # gradient contributuon from example i
+        #computes how W should change to reduce the loss. 
+        for j in range(num_classes):
+            dW[:,j] += probs[j] * X[i]
 
-    # normalized hinge loss plus regularization
-    loss = loss / num_train + reg * np.sum(W * W)
+        dW[:, y[i]] -= X[i]
+
+    #average over batch
+    loss /= num_train #average loss over all examples
+    dW /= num_train #average gradient
+
+    #regularization
+    loss += reg * np.sum(W*W) #penalize large weights
+    dW += 2*reg*W # gradient of that penalty
+
 
     #############################################################################
     # TODO:                                                                     #
