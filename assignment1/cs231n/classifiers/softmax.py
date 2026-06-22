@@ -88,7 +88,14 @@ def softmax_loss_vectorized(W, X, y, reg):
     # Implement a vectorized version of the softmax loss, storing the           #
     # result in loss.                                                           #
     #############################################################################
-    num_train = X.shape()
+    num_train = X.shape(0)
+
+    scores = X.dot(W) #shape(N,C)
+
+    scores -= np.max(scores, axis=1, keepdims=True) #subtract max from each row so exponentials do not blow up
+
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
 
 
     #############################################################################
