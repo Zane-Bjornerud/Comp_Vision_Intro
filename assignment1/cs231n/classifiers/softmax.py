@@ -94,9 +94,15 @@ def softmax_loss_vectorized(W, X, y, reg):
 
     scores -= np.max(scores, axis=1, keepdims=True) #subtract max from each row so exponentials do not blow up
 
+    #softmax probabilities
     exp_scores = np.exp(scores)
     probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
 
+    #loss
+    correct_class_probs = probs[np.arrange(num_train), y]
+    loss= -np.sum(np.log(correct_class_probs))
+    loss /= num_train
+    loss += reg*np.sum(W*W)
 
     #############################################################################
     # TODO:                                                                     #
